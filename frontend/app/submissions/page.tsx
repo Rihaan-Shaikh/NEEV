@@ -25,9 +25,11 @@ import {
   Info
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 export default function SubmissionsPage() {
   const { language, t } = useLanguage();
+  const { user, isLoading: isAuthLoading } = useAuth();
   // Step state: 1 (Context), 2 (Upload), 3 (Preview & Validate), 4 (Receipt)
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -73,8 +75,10 @@ export default function SubmissionsPage() {
         setErrorMsg(err.message || "Failed to load references");
       }
     };
-    loadInitData();
-  }, []);
+    if (!isAuthLoading && user) {
+      loadInitData();
+    }
+  }, [isAuthLoading, user]);
 
   // Load programmes when institution changes
   useEffect(() => {

@@ -9,6 +9,7 @@ import {
   EnrolmentHistory 
 } from "@/lib/api";
 import { useLanguage } from "@/lib/language-context";
+import { useAuth } from "@/lib/auth-context";
 import { 
   Search, 
   ChevronLeft, 
@@ -33,6 +34,7 @@ interface EnrolmentListResponse {
 
 export default function EnrolmentsPage() {
   const { language, t } = useLanguage();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [enrolments, setEnrolments] = useState<EnrolmentRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -80,8 +82,10 @@ export default function EnrolmentsPage() {
   };
 
   useEffect(() => {
-    fetchEnrolments();
-  }, [page, statusFilter]);
+    if (!isAuthLoading && user) {
+      fetchEnrolments();
+    }
+  }, [isAuthLoading, user, page, statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

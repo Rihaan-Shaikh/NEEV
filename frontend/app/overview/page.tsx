@@ -78,10 +78,10 @@ export default function OverviewPage() {
   };
 
   useEffect(() => {
-    if (!isAuthLoading) {
+    if (!isAuthLoading && user) {
       fetchDashboard();
     }
-  }, [isAuthLoading, isNational]);
+  }, [isAuthLoading, user, isNational]);
 
   return (
     <AppShell>

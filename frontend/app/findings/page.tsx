@@ -5,6 +5,7 @@ import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import { api, FindingItem } from "@/lib/api";
 import { useLanguage } from "@/lib/language-context";
+import { useAuth } from "@/lib/auth-context";
 import { 
   RefreshCw, 
   ChevronRight, 
@@ -19,6 +20,7 @@ import {
 
 export default function FindingsInboxPage() {
   const { language, t } = useLanguage();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [findings, setFindings] = useState<FindingItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -54,8 +56,10 @@ export default function FindingsInboxPage() {
   }, [page, pageSize, statusFilter, severityFilter, ruleCodeFilter]);
 
   useEffect(() => {
-    loadFindings();
-  }, [loadFindings]);
+    if (!isAuthLoading && user) {
+      loadFindings();
+    }
+  }, [loadFindings, isAuthLoading, user]);
 
   const handleRunReconciliation = async () => {
     setIsReconciling(true);

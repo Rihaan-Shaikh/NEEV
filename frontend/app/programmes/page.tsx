@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { apiRequest, Programme, Institution, InstitutionListResponse } from "@/lib/api";
 import { GraduationCap, Building2, Filter, AlertCircle, Calendar } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function ProgrammesPage() {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [programmes, setProgrammes] = useState<Programme[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [selectedInstId, setSelectedInstId] = useState<string>("");
@@ -33,8 +35,10 @@ export default function ProgrammesPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, [selectedInstId]);
+    if (!isAuthLoading && user) {
+      loadData();
+    }
+  }, [isAuthLoading, user, selectedInstId]);
 
   return (
     <AppShell>

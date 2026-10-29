@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 export default function InstitutionsPage() {
-  const { hasPermission } = useAuth();
+  const { hasPermission, user, isLoading: isAuthLoading } = useAuth();
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -59,8 +59,10 @@ export default function InstitutionsPage() {
   };
 
   useEffect(() => {
-    fetchInstitutions();
-  }, [page, statusFilter]);
+    if (!isAuthLoading && user) {
+      fetchInstitutions();
+    }
+  }, [isAuthLoading, user, page, statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

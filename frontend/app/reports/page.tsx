@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
+import { useAuth } from "@/lib/auth-context";
 import {
   api,
   ReportDefinition,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 
 export default function ReportsPage() {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [definitions, setDefinitions] = useState<ReportDefinition[]>([]);
   const [jobs, setJobs] = useState<ReportJobItem[]>([]);
   const [institutions, setInstitutions] = useState<{ id: string; name: string; official_institution_code: string }[]>([]);
@@ -73,12 +75,14 @@ export default function ReportsPage() {
   };
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(() => {
-      refreshJobs();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!isAuthLoading && user) {
+      loadData();
+      const interval = setInterval(() => {
+        refreshJobs();
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthLoading, user]);
 
   const handleOpenGenerateModal = (def: ReportDefinition) => {
     setSelectedDefinition(def);

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import { api, NotificationItem } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { 
   Bell, 
   CheckCircle, 
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 
 export default function NotificationsPage() {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,8 +40,10 @@ export default function NotificationsPage() {
   };
 
   useEffect(() => {
-    fetchNotifications();
-  }, [unreadOnly]);
+    if (!isAuthLoading && user) {
+      fetchNotifications();
+    }
+  }, [isAuthLoading, user, unreadOnly]);
 
   const handleMarkAsRead = async (id: string) => {
     try {

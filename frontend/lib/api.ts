@@ -170,12 +170,60 @@ export interface DashboardSummary {
 }
 
 // Token storage in memory only for high security (Project Bible directive)
-// Do NOT store tokens in localStorage or sessionStorage.
+// Do NOT store sensitive JWT tokens in localStorage or sessionStorage.
 let inMemoryToken: string | null = null;
 let activeRefreshPromise: Promise<string | null> | null = null;
+let lastRefreshFailedAt = 0;
+const REFRESH_COOLDOWN_MS = 2500;
+
+// Non-sensitive session presence indicator to prevent redundant refresh calls
+const SESSION_ACTIVE_KEY = "neev_session_active";
+
+export const hasSessionActive = (): boolean => {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(SESSION_ACTIVE_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+export const setSessionActive = (active: boolean) => {
+  if (typeof window === "undefined") return;
+  try {
+    if (active) {
+      localStorage.setItem(SESSION_ACTIVE_KEY, "true");
+    } else {
+      localStorage.removeItem(SESSION_ACTIVE_KEY);
+    }
+  } catch {}
+};
+
+type SessionExpiredListener = () => void;
+const sessionExpiredListeners: Set<SessionExpiredListener> = new Set();
+
+export const onSessionExpired = (listener: SessionExpiredListener): (() => void) => {
+  sessionExpiredListeners.add(listener);
+  return () => {
+    sessionExpiredListeners.delete(listener);
+  };
+};
+
+export const notifySessionExpired = () => {
+  setAccessToken(null);
+  setSessionActive(false);
+  sessionExpiredListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {}
+  });
+};
 
 export const setAccessToken = (token: string | null) => {
   inMemoryToken = token;
+  if (token) {
+    lastRefreshFailedAt = 0;
+  }
 };
 
 export const getAccessToken = (): string | null => {
@@ -183,8 +231,15 @@ export const getAccessToken = (): string | null => {
 };
 
 export async function coordinateTokenRefresh(): Promise<string | null> {
+  // If an active refresh request is already in-flight, reuse it (deduplication)
   if (activeRefreshPromise) {
     return activeRefreshPromise;
+  }
+
+  // Prevent rapid-fire loops if refresh recently failed
+  const now = Date.now();
+  if (lastRefreshFailedAt > 0 && now - lastRefreshFailedAt < REFRESH_COOLDOWN_MS) {
+    return null;
   }
 
   activeRefreshPromise = (async () => {
@@ -196,12 +251,18 @@ export async function coordinateTokenRefresh(): Promise<string | null> {
       if (refreshRes.ok) {
         const data: TokenResponse = await refreshRes.json();
         setAccessToken(data.access_token);
+        setSessionActive(true);
+        lastRefreshFailedAt = 0;
         return data.access_token;
       }
+      // 401 or failure: clear token and mark session inactive
       setAccessToken(null);
+      setSessionActive(false);
+      lastRefreshFailedAt = Date.now();
       return null;
     } catch {
       setAccessToken(null);
+      lastRefreshFailedAt = Date.now();
       return null;
     } finally {
       activeRefreshPromise = null;
@@ -218,6 +279,27 @@ export function sanitizeSpreadsheetCell(value: string | number | null | undefine
     return `'${str}`;
   }
   return str;
+}
+
+function formatErrorMessage(errData: any, status: number, statusText: string): string {
+  if (errData) {
+    if (typeof errData.detail === "string") {
+      return errData.detail;
+    }
+    if (typeof errData.message === "string") {
+      return errData.message;
+    }
+    if (Array.isArray(errData.detail)) {
+      return errData.detail
+        .map((item: any) => item.msg || item.message || (typeof item === "string" ? item : "Validation error"))
+        .join(". ");
+    }
+  }
+  if (status === 401) return "Session has expired or authentication is required. Please sign in.";
+  if (status === 403) return "Access denied: you do not have permission to view or modify this resource.";
+  if (status === 404) return "Requested resource was not found.";
+  if (status >= 500) return "A temporary server error occurred. Please try again shortly.";
+  return statusText || `Request failed (${status})`;
 }
 
 export async function apiRequest<T>(
@@ -248,38 +330,44 @@ export async function apiRequest<T>(
     endpoint === "/auth/reset-password";
 
   if (response.status === 401 && !isPublicAuthEndpoint) {
-    // Coordinated single refresh operation: wait for active or start single refresh
-    const freshToken = await coordinateTokenRefresh();
-    if (freshToken) {
-      // Retry original request exactly once with new token
-      headers.set("Authorization", `Bearer ${freshToken}`);
-      const retryRes = await fetch(`${API_BASE}${endpoint}`, {
-        ...options,
-        headers,
-        credentials: "include",
-      });
-      if (retryRes.ok) {
-        return retryRes.json();
+    // Only attempt refresh if:
+    // 1) An access token was attached (expired token), OR
+    // 2) An active session indicator exists
+    const canAttempt = Boolean(token) || hasSessionActive();
+    if (canAttempt) {
+      const freshToken = await coordinateTokenRefresh();
+      if (freshToken) {
+        // Retry original request exactly once with new token
+        headers.set("Authorization", `Bearer ${freshToken}`);
+        const retryRes = await fetch(`${API_BASE}${endpoint}`, {
+          ...options,
+          headers,
+          credentials: "include",
+        });
+        if (retryRes.ok) {
+          return retryRes.json();
+        }
+        let retryData = null;
+        try {
+          retryData = await retryRes.json();
+        } catch {}
+        const retryError = formatErrorMessage(retryData, retryRes.status, retryRes.statusText);
+        const err: any = new Error(retryError);
+        err.status = retryRes.status;
+        throw err;
+      } else {
+        // Refresh failed (expired/revoked session)
+        notifySessionExpired();
       }
-      let retryError = "Request failed after session refresh.";
-      try {
-        const errJson = await retryRes.json();
-        retryError = errJson.message || errJson.detail || retryRes.statusText;
-      } catch {
-        retryError = retryRes.statusText;
-      }
-      throw new Error(retryError);
     }
   }
 
   if (!response.ok) {
-    let errorDetail = "An unexpected error occurred.";
+    let errorData = null;
     try {
-      const errorJson = await response.json();
-      errorDetail = errorJson.message || errorJson.detail || JSON.stringify(errorJson);
-    } catch {
-      errorDetail = response.statusText || `Request failed with HTTP ${response.status}`;
-    }
+      errorData = await response.json();
+    } catch {}
+    const errorDetail = formatErrorMessage(errorData, response.status, response.statusText);
     const err: any = new Error(errorDetail);
     err.status = response.status;
     throw err;

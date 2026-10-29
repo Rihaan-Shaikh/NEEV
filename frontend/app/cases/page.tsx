@@ -5,6 +5,7 @@ import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import { api, AuditCaseListItem, Institution } from "@/lib/api";
 import { useLanguage } from "@/lib/language-context";
+import { useAuth } from "@/lib/auth-context";
 import { 
   FolderKanban, 
   Search, 
@@ -19,6 +20,7 @@ import {
 
 export default function AuditCasesPage() {
   const { language, t } = useLanguage();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [cases, setCases] = useState<AuditCaseListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -60,8 +62,10 @@ export default function AuditCasesPage() {
   };
 
   useEffect(() => {
-    fetchCases();
-  }, [page, statusFilter, priorityFilter]);
+    if (!isAuthLoading && user) {
+      fetchCases();
+    }
+  }, [isAuthLoading, user, page, statusFilter, priorityFilter]);
 
   const loadInstitutions = async () => {
     try {

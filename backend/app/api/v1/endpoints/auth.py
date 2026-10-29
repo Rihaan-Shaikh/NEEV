@@ -40,6 +40,34 @@ def utc_now() -> datetime:
 def hash_reset_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
+def get_refresh_cookie_settings(request: Request) -> dict:
+    """
+    Returns cookie configuration based on deployment environment and protocol.
+    Cross-origin deployments (e.g. Vercel frontend + cloud backend) over HTTPS
+    require SameSite="None" and Secure=True to transmit HttpOnly credentials.
+    Local HTTP development uses SameSite="Lax" and Secure=False.
+    """
+    is_https = (
+        request.url.scheme == "https"
+        or request.headers.get("x-forwarded-proto", "").lower() == "https"
+        or settings.ENVIRONMENT.lower() in ("production", "prod", "staging")
+    )
+    if is_https:
+        return {
+            "httponly": True,
+            "secure": True,
+            "samesite": "none",
+            "path": "/",
+            "max_age": settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+        }
+    return {
+        "httponly": True,
+        "secure": False,
+        "samesite": "lax",
+        "path": "/",
+        "max_age": settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+    }
+
 def build_user_response(user: User) -> UserResponse:
     role_codes = [r.code for r in user.roles]
     all_perms = set()
@@ -135,14 +163,11 @@ async def login(
     await db.flush()
 
     # Set secure HttpOnly cookie for refresh token
+    cookie_settings = get_refresh_cookie_settings(request)
     response.set_cookie(
         key="neev_refresh_token",
         value=refresh_token,
-        httponly=True,
-        secure=False,  # Set True in production behind HTTPS
-        samesite="lax",
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
-        path="/"
+        **cookie_settings
     )
 
     await log_audit_event(
@@ -168,7 +193,9 @@ async def refresh_session(
     response: Response,
     db: AsyncSession = Depends(get_db)
 ):
+    cookie_settings = get_refresh_cookie_settings(request)
     refresh_token = request.cookies.get("neev_refresh_token")
+
     if not refresh_token:
         # Check Authorization header fallback
         auth_header = request.headers.get("Authorization")
@@ -176,9 +203,18 @@ async def refresh_session(
             refresh_token = auth_header[7:]
 
     if not refresh_token:
+        # Check JSON body fallback
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                refresh_token = body.get("refresh_token")
+        except Exception:
+            pass
+
+    if not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token not found",
+            detail="No active session found. Please sign in.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -187,9 +223,23 @@ async def refresh_session(
         user_id = payload.get("sub")
         token_type = payload.get("type")
         if not user_id or token_type != "refresh":
-            raise HTTPException(status_code=401, detail="Invalid refresh token payload")
+            response.delete_cookie(
+                key="neev_refresh_token",
+                path="/",
+                secure=cookie_settings["secure"],
+                samesite=cookie_settings["samesite"]
+            )
+            raise HTTPException(status_code=401, detail="Session is invalid or malformed. Please sign in again.")
+    except HTTPException:
+        raise
     except Exception:
-        raise HTTPException(status_code=401, detail="Expired or malformed refresh token")
+        response.delete_cookie(
+            key="neev_refresh_token",
+            path="/",
+            secure=cookie_settings["secure"],
+            samesite=cookie_settings["samesite"]
+        )
+        raise HTTPException(status_code=401, detail="Session has expired. Please sign in again.")
 
     rf_hash = hash_refresh_token(refresh_token)
     session_res = await db.execute(
@@ -198,7 +248,13 @@ async def refresh_session(
     rf_session = session_res.scalars().first()
 
     if not rf_session:
-        raise HTTPException(status_code=401, detail="Refresh session not found")
+        response.delete_cookie(
+            key="neev_refresh_token",
+            path="/",
+            secure=cookie_settings["secure"],
+            samesite=cookie_settings["samesite"]
+        )
+        raise HTTPException(status_code=401, detail="Session not recognized or revoked. Please sign in again.")
 
     now = utc_now()
 
@@ -212,6 +268,13 @@ async def refresh_session(
             s.revoked_at = now
         await db.flush()
 
+        response.delete_cookie(
+            key="neev_refresh_token",
+            path="/",
+            secure=cookie_settings["secure"],
+            samesite=cookie_settings["samesite"]
+        )
+
         await log_audit_event(
             db,
             action="REFRESH_TOKEN_REUSE_DETECTED",
@@ -223,7 +286,7 @@ async def refresh_session(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token reuse detected. Session terminated for security."
+            detail="Security notice: Session expired due to concurrent access. Please sign in again."
         )
 
     exp = rf_session.expires_at
@@ -233,11 +296,23 @@ async def refresh_session(
         is_past = exp < now
 
     if is_past:
-        raise HTTPException(status_code=401, detail="Refresh session has expired")
+        response.delete_cookie(
+            key="neev_refresh_token",
+            path="/",
+            secure=cookie_settings["secure"],
+            samesite=cookie_settings["samesite"]
+        )
+        raise HTTPException(status_code=401, detail="Session has expired. Please sign in again.")
 
     user = await db.get(User, user_id)
     if not user or user.account_status != "active":
-        raise HTTPException(status_code=403, detail="User account is inactive or missing")
+        response.delete_cookie(
+            key="neev_refresh_token",
+            path="/",
+            secure=cookie_settings["secure"],
+            samesite=cookie_settings["samesite"]
+        )
+        raise HTTPException(status_code=403, detail="User account is inactive or missing.")
 
     # Rotate Refresh Token
     new_token_data = {"sub": user.id, "email": user.email_normalized}
@@ -260,11 +335,7 @@ async def refresh_session(
     response.set_cookie(
         key="neev_refresh_token",
         value=new_refresh_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
-        path="/"
+        **cookie_settings
     )
 
     return TokenResponse(
@@ -281,6 +352,18 @@ async def logout(
     db: AsyncSession = Depends(get_db)
 ):
     refresh_token = request.cookies.get("neev_refresh_token")
+    if not refresh_token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            refresh_token = auth_header[7:]
+    if not refresh_token:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                refresh_token = body.get("refresh_token")
+        except Exception:
+            pass
+
     user_id = None
     if refresh_token:
         rf_hash = hash_refresh_token(refresh_token)
@@ -291,7 +374,13 @@ async def logout(
             session.revoked_at = utc_now()
             await db.flush()
 
-    response.delete_cookie(key="neev_refresh_token", path="/")
+    cookie_settings = get_refresh_cookie_settings(request)
+    response.delete_cookie(
+        key="neev_refresh_token",
+        path="/",
+        secure=cookie_settings["secure"],
+        samesite=cookie_settings["samesite"]
+    )
 
     if user_id:
         await log_audit_event(
@@ -344,9 +433,9 @@ async def forgot_password(
         )
 
         # In development environment, log the testing link clearly for local testability
-        if settings.ENVIRONMENT == "development":
+        if settings.ENVIRONMENT.lower() == "development":
             logger.info(
-                f"[DEVELOPMENT ONLY] Password reset requested for {email}. "
+                f"[DEVELOPMENT ONLY] Password reset initiated. "
                 f"Test Reset URL: http://localhost:3000/reset-password?token={raw_token}"
             )
             return {

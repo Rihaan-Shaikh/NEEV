@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
+import { useAuth } from "@/lib/auth-context";
 import {
   api,
   VerificationReferenceItem,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 
 export default function VerificationReferencesPage() {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [references, setReferences] = useState<VerificationReferenceItem[]>([]);
   const [enrolments, setEnrolments] = useState<EnrolmentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,8 +83,10 @@ export default function VerificationReferencesPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, [statusFilter]);
+    if (!isAuthLoading && user) {
+      loadData();
+    }
+  }, [isAuthLoading, user, statusFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

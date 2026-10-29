@@ -5,6 +5,36 @@ interface NeevEmblemProps {
   size?: number;
 }
 
+// 24-Spoke Radial Wheel coordinates pre-calculated to fixed precision (2 decimal places)
+// to eliminate floating-point trigonometry discrepancies between server SSR (Node/V8)
+// and browser runtime engines, preventing React hydration mismatches on line 33.
+const SPOKE_COORDINATES = [
+  { x2: 90, y2: 50 },
+  { x2: 88.64, y2: 60.35 },
+  { x2: 84.64, y2: 70 },
+  { x2: 78.28, y2: 78.28 },
+  { x2: 70, y2: 84.64 },
+  { x2: 60.35, y2: 88.64 },
+  { x2: 50, y2: 90 },
+  { x2: 39.65, y2: 88.64 },
+  { x2: 30, y2: 84.64 },
+  { x2: 21.72, y2: 78.28 },
+  { x2: 15.36, y2: 70 },
+  { x2: 11.36, y2: 60.35 },
+  { x2: 10, y2: 50 },
+  { x2: 11.36, y2: 39.65 },
+  { x2: 15.36, y2: 30 },
+  { x2: 21.72, y2: 21.72 },
+  { x2: 30, y2: 15.36 },
+  { x2: 39.65, y2: 11.36 },
+  { x2: 50, y2: 10 },
+  { x2: 60.35, y2: 11.36 },
+  { x2: 70, y2: 15.36 },
+  { x2: 78.28, y2: 21.72 },
+  { x2: 84.64, y2: 30 },
+  { x2: 88.64, y2: 39.65 },
+];
+
 export default function NeevEmblem({ className = "", size = 48 }: NeevEmblemProps) {
   // Strip any accidental box-shadows to guarantee strict circular geometry
   const sanitizedClassName = className.replace(/shadow(-\w+)?/g, "").trim();
@@ -26,16 +56,13 @@ export default function NeevEmblem({ className = "", size = 48 }: NeevEmblemProp
       
       {/* 24-Spoke Radial Wheel of Learning */}
       <g stroke="#F59E0B" strokeWidth="0.8" opacity="0.3">
-        {[
-          0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165,
-          180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345
-        ].map((angle) => (
+        {SPOKE_COORDINATES.map((spoke, idx) => (
           <line
-            key={angle}
+            key={idx}
             x1="50"
             y1="50"
-            x2={50 + 40 * Math.cos((angle * Math.PI) / 180)}
-            y2={50 + 40 * Math.sin((angle * Math.PI) / 180)}
+            x2={spoke.x2}
+            y2={spoke.y2}
           />
         ))}
       </g>

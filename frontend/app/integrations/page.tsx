@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { api, IntegrationStatusItem } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import {
   Network,
   CheckCircle2,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 
 export default function IntegrationsPage() {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [adapters, setAdapters] = useState<IntegrationStatusItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,8 +40,10 @@ export default function IntegrationsPage() {
   };
 
   useEffect(() => {
-    loadAdapters();
-  }, []);
+    if (!isAuthLoading && user) {
+      loadAdapters();
+    }
+  }, [isAuthLoading, user]);
 
   const handleTestContract = async (adapterCode: string) => {
     setProbingCode(adapterCode);

@@ -61,6 +61,19 @@ export default function LoginPage() {
 
   // Cooldown countdown timer
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("session_expired") === "1") {
+        setErrorMsg(
+          language === "hi"
+            ? "आपका सत्र समाप्त हो गया है। कृपया जारी रखने के लिए पुनः प्रवेश करें।"
+            : "Your session has expired. Please sign in again to continue."
+        );
+      }
+    }
+  }, [language]);
+
+  useEffect(() => {
     if (cooldownSeconds <= 0) {
       if (isRateLimited) {
         setIsRateLimited(false);

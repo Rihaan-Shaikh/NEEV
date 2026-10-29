@@ -27,10 +27,13 @@ develop-eggs/
 # --- Tests, Test Frameworks & Test Data ---
 tests/
 **/tests/
+!backend/tests/
+!backend/tests/**
 test/
 **/test/
 test_*.py
 *_test.py
+!backend/tests/test_*.py
 *.test.js
 *.test.jsx
 *.test.ts
@@ -113,6 +116,7 @@ secrets.json
 service-account*.json
 
 # --- OS & Editor Metadata ---
+*.dump
 .DS_Store
 .DS_Store?
 ._*
