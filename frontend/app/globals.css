@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+:root {
+  --color-app-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F1F5F9;
+  --color-navy-dark: #0F2942;
+  --color-navy-main: #16365C;
+  --color-navy-light: #1E40AF;
+  --color-navy-hover: #0B2138;
+  --color-sidebar: #0F2942;
+  --color-sidebar-hover: #16365C;
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-border: #CBD5E1;
+  --color-border-subtle: #E2E8F0;
+  --color-accent: #16365C;
+  --color-accent-hover: #0F2942;
+  --color-success: #15803D;
+  --color-warning: #B45309;
+  --color-danger: #B91C1C;
+  --color-info: #1D4ED8;
+}
+
+body {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Institutional Operational Tables */
+.neev-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.neev-table th {
+  background-color: #F1F5F9;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #CBD5E1;
+  text-align: left;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.neev-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 0.8125rem;
+  color: #1E293B;
+  font-variant-numeric: tabular-nums;
+  vertical-align: top;
+}
+
+.neev-table tr:hover td {
+  background-color: #F8FAFC;
+}
+
+/* General table border collapse */
+table {
+  border-collapse: collapse;
+}
+
+/* Cells that must strictly avoid awkward wrapping (status pills, numbers, badges, action buttons, IDs) */
+.cell-nowrap,
+.status-pill,
+.neev-badge,
+.neev-id,
+span[class*="rounded-full"],
+span[class*="rounded-md"] {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+}
+
+/* Text descriptions and explanation columns that should wrap cleanly */
+.cell-wrap {
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Identifiers in clean tabular sans-serif (NO typewriter/monospace font) */
+.neev-id {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap !important;
+}
+
+/* Custom rounded button utility classes - No text clipping, generous padding */
+.btn-rounded {
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.125rem;
+  white-space: nowrap !important;
+  transition: all 0.15s ease-in-out;
+  flex-shrink: 0;
+}
+
+.btn-rounded-primary {
+  border-radius: 9999px;
+  background-color: #0F2942;
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.25rem;
+  white-space: nowrap !important;
+  transition: all 0.15s ease-in-out;
+  flex-shrink: 0;
+}
+.btn-rounded-primary svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.btn-rounded-primary:hover {
+  background-color: #16365C;
+}
+
+.btn-rounded-secondary {
+  border-radius: 9999px;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #1E293B;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.125rem;
+  white-space: nowrap !important;
+  transition: all 0.15s ease-in-out;
+  flex-shrink: 0;
+}
+.btn-rounded-secondary svg {
+  color: #0F2942;
+}
+.btn-rounded-secondary:hover {
+  background-color: #F1F5F9;
+  border-color: #94A3B8;
+}
+
+/* Clean sidebar without clunky Windows scrollbars */
+.sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Official Government Accessibility Preset Scaling (A-, A, A+) - Font Size ONLY (No whole-page zoom) */
+html {
+  font-size: 15px;
+  transition: font-size 0.15s ease-in-out;
+}
+
+body {
+  font-size: 1rem;
+}
+
+html[data-font-size="small"],
+body[data-font-size="small"] {
+  font-size: 13.5px !important;
+}
+
+html[data-font-size="normal"],
+body[data-font-size="normal"] {
+  font-size: 15px !important;
+}
+
+html[data-font-size="large"],
+body[data-font-size="large"] {
+  font-size: 17.5px !important;
+}
+
+/* Statutory Print & PDF Export Styling */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+    color: #0F2942 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide navigation controls, utility bars, buttons when printing / saving as PDF */
+  header nav,
+  .print-hide,
+  button,
+  input,
+  select,
+  .sidebar-scroll {
+    display: none !important;
+  }
+
+  /* Ensure card borders and background tints appear correctly in printed PDF */
+  .bg-white,
+  .bg-slate-50,
+  .border {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

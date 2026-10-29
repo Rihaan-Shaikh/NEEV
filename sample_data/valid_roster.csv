@@ -1,0 +1,6 @@
+institution_student_id,student_full_name,admission_date,enrolment_status,programme_code,admission_category,apaar_id,supernumerary_category
+DIT-2024-CSE-101,Aarush Gupta,2024-07-25,ACTIVE,BTECH-CSE,OPEN,100120045101,
+DIT-2024-CSE-102,Bhavna Sharma,2024-07-25,ACTIVE,BTECH-CSE,OBC,100120045102,
+DIT-2024-CSE-103,Chirag Sen,2024-07-26,ACTIVE,BTECH-CSE,SC,100120045103,
+DIT-2024-CSE-104,Devika Rao,2024-07-27,ACTIVE,BTECH-CSE,OPEN,100120045104,
+DIT-2024-CSE-105,Eshwar Reddy,2024-07-28,ACTIVE,BTECH-CSE,EWS,,
