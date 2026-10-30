@@ -1,0 +1,316 @@
+{
+  "testResults": [
+    {
+      "testId": "PUB-001",
+      "name": "Public Landing Page",
+      "status": "PASS",
+      "details": "Title: \"National education evidence and verification\", Hero detected: true",
+      "screenshotFile": "01_landing_page.png",
+      "timestamp": "2026-10-30T03:53:23.362Z"
+    },
+    {
+      "testId": "PUB-002",
+      "name": "Login Page Initial State",
+      "status": "PASS",
+      "details": "Email & password inputs present: true",
+      "screenshotFile": "02_login_page_unauthenticated.png",
+      "timestamp": "2026-10-30T03:53:24.026Z"
+    },
+    {
+      "testId": "PUB-003",
+      "name": "Forgot Password Page",
+      "status": "PASS",
+      "details": "Email input present: true",
+      "screenshotFile": "03_forgot_password_page.png",
+      "timestamp": "2026-10-30T03:53:24.655Z"
+    },
+    {
+      "testId": "PUB-004",
+      "name": "Reset Password Page",
+      "status": "PASS",
+      "details": "Reset password page rendered with token validation state",
+      "screenshotFile": "04_reset_password_page.png",
+      "timestamp": "2026-10-30T03:53:25.271Z"
+    },
+    {
+      "testId": "PUB-005",
+      "name": "Public Verification Resolver Page",
+      "status": "PASS",
+      "details": "Verification inputs present: true",
+      "screenshotFile": "05_public_verify_page.png",
+      "timestamp": "2026-10-30T03:53:25.882Z"
+    },
+    {
+      "testId": "PUB-005B",
+      "name": "Public Verification Resolution Execution",
+      "status": "PASS",
+      "details": "Resolved VRF-2026-DIT001 token query",
+      "screenshotFile": "05b_public_verify_result.png",
+      "timestamp": "2026-10-30T03:53:28.003Z"
+    },
+    {
+      "testId": "PUB-006",
+      "name": "Institution Registration Page",
+      "status": "PASS",
+      "details": "Registration elements present: true",
+      "screenshotFile": "06_register_page.png",
+      "timestamp": "2026-10-30T03:53:28.659Z"
+    },
+    {
+      "testId": "PUB-007",
+      "name": "404 Error Page",
+      "status": "PASS",
+      "details": "404 page displayed properly: true",
+      "screenshotFile": "07_not_found_page.png",
+      "timestamp": "2026-10-30T03:53:29.287Z"
+    },
+    {
+      "testId": "AUTH-001",
+      "name": "Invalid Login Handling",
+      "status": "PASS",
+      "details": "Error alert displayed on invalid credentials: true",
+      "screenshotFile": "08_invalid_login_feedback.png",
+      "timestamp": "2026-10-30T03:53:30.972Z"
+    },
+    {
+      "testId": "AUTH-002",
+      "name": "Suspended Account Block",
+      "status": "PASS",
+      "details": "Suspended account rejected with alert: true",
+      "screenshotFile": "09_suspended_user_login.png",
+      "timestamp": "2026-10-30T03:53:32.096Z"
+    },
+    {
+      "testId": "AUTH-003",
+      "name": "National Admin Login & Redirect",
+      "status": "PASS",
+      "details": "Redirected to: http://localhost:3000/overview",
+      "screenshotFile": "10_post_login_overview.png",
+      "timestamp": "2026-10-30T03:53:34.519Z"
+    },
+    {
+      "testId": "SESS-001",
+      "name": "Session Persistence on /overview Refresh",
+      "status": "PASS",
+      "details": "Post-refresh URL: http://localhost:3000/overview, Session Restored: true",
+      "screenshotFile": "11_session_persistence_after_refresh_overview.png",
+      "timestamp": "2026-10-30T03:53:37.289Z"
+    },
+    {
+      "testId": "SESS-002",
+      "name": "Session Persistence on /programmes Refresh",
+      "status": "PASS",
+      "details": "Post-refresh URL: http://localhost:3000/programmes, Session Restored: true",
+      "screenshotFile": "12_session_persistence_after_refresh_programmes.png",
+      "timestamp": "2026-10-30T03:53:41.657Z"
+    },
+    {
+      "testId": "SESS-003",
+      "name": "Direct Navigation in Secondary Tab",
+      "status": "PASS",
+      "details": "Direct URL: http://localhost:3000/enrolments, Restored auth: true",
+      "screenshotFile": "13_direct_navigation_new_tab.png",
+      "timestamp": "2026-10-30T03:53:44.620Z"
+    },
+    {
+      "testId": "SCR-001",
+      "name": "National Overview Dashboard",
+      "status": "PASS",
+      "details": "Metric cards and oversight widgets rendered: true",
+      "screenshotFile": "14_screen_overview.png",
+      "timestamp": "2026-10-30T03:53:46.961Z"
+    },
+    {
+      "testId": "SCR-002",
+      "name": "Programmes & Capacity Ledger",
+      "status": "PASS",
+      "details": "Programmes table rendered with 5 rows",
+      "screenshotFile": "15_screen_programmes.png",
+      "timestamp": "2026-10-30T03:53:49.149Z"
+    },
+    {
+      "testId": "SCR-003",
+      "name": "Student Enrolments Ledger",
+      "status": "PASS",
+      "details": "Enrolments table rendered with 15 rows, APAAR masking verified",
+      "screenshotFile": "16_screen_enrolments.png",
+      "timestamp": "2026-10-30T03:53:51.405Z"
+    },
+    {
+      "testId": "SCR-004",
+      "name": "Batch Submissions & Ingestion",
+      "status": "PASS",
+      "details": "Roster dropzone and history visible: true",
+      "screenshotFile": "17_screen_submissions.png",
+      "timestamp": "2026-10-30T03:53:53.603Z"
+    },
+    {
+      "testId": "SCR-005",
+      "name": "Discrepancy Findings Registry",
+      "status": "PASS",
+      "details": "Findings table rendered with 2 rows",
+      "screenshotFile": "18_screen_findings.png",
+      "timestamp": "2026-10-30T03:53:55.872Z"
+    },
+    {
+      "testId": "SCR-006",
+      "name": "Finding Detail & Resolution State Machine",
+      "status": "PASS",
+      "details": "Viewed finding detail: http://localhost:3000/findings/37505ac9-791c-4d73-8f4e-9426246bd18e",
+      "screenshotFile": "19_screen_finding_detail.png",
+      "timestamp": "2026-10-30T03:53:57.488Z"
+    },
+    {
+      "testId": "SCR-007",
+      "name": "Risk Prioritization Queue",
+      "status": "PASS",
+      "details": "Risk scoring queue and factor breakdowns rendered: true",
+      "screenshotFile": "20_screen_risk_queue.png",
+      "timestamp": "2026-10-30T03:53:59.740Z"
+    },
+    {
+      "testId": "SCR-008",
+      "name": "Regulatory Audit Cases",
+      "status": "PASS",
+      "details": "Audit cases table rendered with 2 rows",
+      "screenshotFile": "21_screen_cases.png",
+      "timestamp": "2026-10-30T03:54:01.967Z"
+    },
+    {
+      "testId": "SCR-009",
+      "name": "Audit Case Detail & Review Actions",
+      "status": "PASS",
+      "details": "Viewed audit case detail: http://localhost:3000/cases/c1e3334d-20c8-4a4b-8d70-e7c3fde50ef1",
+      "screenshotFile": "22_screen_case_detail.png",
+      "timestamp": "2026-10-30T03:54:03.551Z"
+    },
+    {
+      "testId": "SCR-010",
+      "name": "Institutions Directory",
+      "status": "PASS",
+      "details": "Institutions directory rendered with 3 rows",
+      "screenshotFile": "23_screen_institutions.png",
+      "timestamp": "2026-10-30T03:54:05.739Z"
+    },
+    {
+      "testId": "SCR-011",
+      "name": "Institution Risk Profile Breakdown",
+      "status": "PASS",
+      "details": "Direct navigated to DIT risk profile",
+      "screenshotFile": "24_screen_institution_risk_profile.png",
+      "timestamp": "2026-10-30T03:54:08.003Z"
+    },
+    {
+      "testId": "SCR-012",
+      "name": "Regulatory Reports & Export Center",
+      "status": "PASS",
+      "details": "Report catalog and jobs queue visible: true",
+      "screenshotFile": "25_screen_reports.png",
+      "timestamp": "2026-10-30T03:54:10.227Z"
+    },
+    {
+      "testId": "SCR-013",
+      "name": "Controlled Verification References",
+      "status": "PASS",
+      "details": "Verification reference management visible: true",
+      "screenshotFile": "26_screen_verification_references.png",
+      "timestamp": "2026-10-30T03:54:12.425Z"
+    },
+    {
+      "testId": "SCR-014",
+      "name": "Simulated External Integrations",
+      "status": "PASS",
+      "details": "Government adapter telemetry and health cards visible: true",
+      "screenshotFile": "27_screen_integrations.png",
+      "timestamp": "2026-10-30T03:54:14.645Z"
+    },
+    {
+      "testId": "SCR-015",
+      "name": "System Notifications Hub",
+      "status": "PASS",
+      "details": "Notifications hub rendered: true",
+      "screenshotFile": "28_screen_notifications.png",
+      "timestamp": "2026-10-30T03:54:16.846Z"
+    },
+    {
+      "testId": "AUTH-004",
+      "name": "Sign Out Action",
+      "status": "PASS",
+      "details": "Logged out and redirected to: http://localhost:3000/login",
+      "screenshotFile": "29_post_logout_screen.png",
+      "timestamp": "2026-10-30T03:54:18.431Z"
+    },
+    {
+      "testId": "AUTH-005",
+      "name": "Post-Logout Route Guard",
+      "status": "PASS",
+      "details": "Attempt to access /overview redirected to: http://localhost:3000/login",
+      "screenshotFile": null,
+      "timestamp": "2026-10-30T03:54:20.496Z"
+    },
+    {
+      "testId": "ROLE-001",
+      "name": "Institutional Admin Scoped Overview",
+      "status": "PASS",
+      "details": "Institutional admin view loaded scoped to DIT: true",
+      "screenshotFile": "30_inst_admin_overview.png",
+      "timestamp": "2026-10-30T03:54:23.440Z"
+    },
+    {
+      "testId": "ROLE-002",
+      "name": "Institutional Admin Scoped Access to Risk Queue",
+      "status": "PASS",
+      "details": "Risk queue loaded in tenant-scoped mode",
+      "screenshotFile": "31_inst_admin_risk_queue.png",
+      "timestamp": "2026-10-30T03:54:25.668Z"
+    }
+  ],
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:3000/non-existent-route-for-testing",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      },
+      "page": "http://localhost:3000/non-existent-route-for-testing"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "location": {
+        "url": "http://localhost:8000/api/v1/auth/login",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      },
+      "page": "http://localhost:3000/login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "location": {
+        "url": "http://localhost:8000/api/v1/auth/login",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      },
+      "page": "http://localhost:3000/login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "location": {
+        "url": "http://localhost:8000/api/v1/institutions/b2787384-7e13-460b-b3b8-094f4d5d0038/risk-profile",
+        "line": 0,
+        "column": 0,
+        "lineNumber": 0,
+        "columnNumber": 0
+      },
+      "page": "http://localhost:3000/institutions/b2787384-7e13-460b-b3b8-094f4d5d0038/risk-profile"
+    }
+  ],
+  "networkFailures": [],
+  "completedAt": "2026-10-30T03:54:27.662Z"
+}
