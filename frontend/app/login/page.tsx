@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -18,6 +19,9 @@ import {
   ShieldCheck, 
   AlertOctagon,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
   ExternalLink,
   Info
 } from "lucide-react";
@@ -33,6 +37,51 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [fontSizeLevel, setFontSizeLevel] = useState<"small" | "normal" | "large">("normal");
+
+  // Platform Demo Slides for Showcase
+  const demoScreenshots = [
+    {
+      src: "/demo/14_screen_overview.png",
+      title: "National Regulatory Overview",
+      subtitle: "AICTE national-level intelligence, capacity distribution & institutional coverage metrics",
+      tag: "Council Dashboard"
+    },
+    {
+      src: "/demo/16_screen_enrolments.png",
+      title: "Student Enrolment Register",
+      subtitle: "Deterministic reconciliation against sanctioned intake and supernumerary caps",
+      tag: "Integrity Core"
+    },
+    {
+      src: "/demo/18_screen_findings.png",
+      title: "Automated Discrepancy Findings",
+      subtitle: "Real-time detection of intake overflows, missing APAARs & cross-college duplicates",
+      tag: "Verification Engine"
+    },
+    {
+      src: "/demo/20_screen_risk_queue.png",
+      title: "AICTE Prioritized Risk Queue",
+      subtitle: "Explainable regulatory indicators routing high-priority audits without black-box scores",
+      tag: "Audit Queue"
+    },
+    {
+      src: "/demo/25_screen_reports.png",
+      title: "National Policy & Regulatory Reports",
+      subtitle: "Policy-grade analytics, institutional compliance logs & verifiable audit trails",
+      tag: "Policy Analytics"
+    }
+  ];
+
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Auto-advance showcase every 4.5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % demoScreenshots.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [demoScreenshots.length]);
+
 
   // Rate Limiting Cooldown State
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
@@ -257,8 +306,75 @@ export default function LoginPage() {
       </header>
 
       {/* 3. Main Form Canvas */}
-      <main className="py-10 px-4 sm:px-6 lg:px-8 flex-1 flex flex-col justify-center max-w-xl mx-auto w-full">
-        <div className="bg-white py-8 px-6 sm:px-8 shadow-sm border border-[#CBD5E1] rounded-2xl space-y-6">
+            {/* 3. Main Split Canvas (55% Demo Showcase : 45% Right-Aligned Login) */}
+      <main className="flex-1 w-full flex flex-col lg:flex-row items-center justify-between py-6 lg:py-8 pl-4 sm:pl-8 lg:pl-[6%] pr-4 sm:pr-6 lg:pr-[5%] gap-8 lg:gap-12 w-full">
+        {/* Left 55%: Interactive Platform Showcase & Animated Transition Carousel */}
+        <div className="w-full lg:w-[55%] flex flex-col justify-center space-y-4 py-2">
+          {/* Header Title & Single Line Description */}
+          <div className="space-y-1.5">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F2942] tracking-tight">
+              Evidence-based student enrolment integrity for AICTE
+            </h1>
+            <p className="text-xs sm:text-sm text-[#475569] whitespace-normal xl:whitespace-nowrap leading-relaxed">
+              Preview our live regulatory workspaces, canonical student registers, and explainable audit workflows across AICTE-approved institutions.
+            </p>
+          </div>
+
+          {/* Clean Image Showcase Frame - Pure Image & Description Only */}
+          <div className="relative rounded-2xl bg-white border border-[#CBD5E1] shadow-lg overflow-hidden flex flex-col transition-all duration-300">
+            {/* Slides Image Showcase (Crossfade Animation) */}
+            <div className="relative w-full aspect-[16/10] bg-slate-950 overflow-hidden group">
+              {demoScreenshots.map((item, idx) => (
+                <div
+                  key={item.src}
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                    idx === activeSlide
+                      ? "opacity-100 scale-100 z-10"
+                      : "opacity-0 scale-98 z-0 pointer-events-none"
+                  }`}
+                >
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    className="w-full h-full object-cover object-top"
+                  />
+                  {/* Clean dark gradient overlay at bottom for title & description */}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent p-4 sm:p-5 flex flex-col justify-end text-white">
+                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
+                      {item.title}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-200 mt-0.5 leading-relaxed">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              {/* Prev / Next controls on hover */}
+              <button
+                type="button"
+                onClick={() => setActiveSlide((prev) => (prev - 1 + demoScreenshots.length) % demoScreenshots.length)}
+                aria-label="Previous slide"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-900/90 text-white flex items-center justify-center backdrop-blur-xs transition-colors cursor-pointer border border-white/20 opacity-0 group-hover:opacity-100"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSlide((prev) => (prev + 1) % demoScreenshots.length)}
+                aria-label="Next slide"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-900/90 text-white flex items-center justify-center backdrop-blur-xs transition-colors cursor-pointer border border-white/20 opacity-0 group-hover:opacity-100"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right 45%: Login Card pushed further to the right */}
+        <div className="w-full lg:w-[45%] flex justify-end lg:pr-8 xl:pr-14 2xl:pr-20">
+
+        <div className="bg-white py-8 px-6 sm:px-8 shadow-sm border border-[#CBD5E1] rounded-2xl space-y-6 w-full max-w-lg">
           {/* Form Header */}
           <div className="border-b border-[#E2E8F0] pb-4">
             <div className="flex items-center gap-2">
@@ -471,6 +587,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+              </div>
       </main>
 
       {/* 4. Footer with Circular Emblem & Left Alignment */}
